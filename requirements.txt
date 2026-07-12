@@ -1,0 +1,12 @@
+numpy
+pandas
+requests
+beautifulsoup4
+anthropic
+python-dotenv
+fastapi
+uvicorn
+python-multipart
+langgraph
+pypdf
+python-docx
