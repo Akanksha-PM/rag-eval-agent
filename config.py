@@ -14,6 +14,7 @@ class Config:
     """Runtime configuration, overridable via environment variables."""
 
     LLM_PROVIDER = os.getenv("LLM_PROVIDER", "mock")
+    EMBEDDING_PROVIDER = os.getenv("EMBEDDING_PROVIDER", "tfidf")
 
     CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", 500))
     CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", 50))
