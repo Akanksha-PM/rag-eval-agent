@@ -8,5 +8,25 @@
         "value": "https://example.com"
       }
     ]
+  },
+  "ProductA": {
+    "status": "ready",
+    "chunk_count": 3,
+    "sources": [
+      {
+        "type": "file",
+        "value": "/tmp/fixtures/a.txt"
+      }
+    ]
+  },
+  "ProductB": {
+    "status": "ready",
+    "chunk_count": 3,
+    "sources": [
+      {
+        "type": "file",
+        "value": "/tmp/fixtures/b.txt"
+      }
+    ]
   }
 }

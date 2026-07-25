@@ -107,6 +107,36 @@ class VectorStoreTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             store.add([_make_chunk("a_0", "ProductA")], [[1.0, 0.0], [0.0, 1.0]])
 
+    def test_get_all_without_filter_returns_every_chunk(self):
+        store = VectorStore()
+        chunks = [
+            _make_chunk("a_0", "ProductA"),
+            _make_chunk("b_0", "ProductB"),
+        ]
+        store.add(chunks, [[1.0, 0.0], [0.0, 1.0]])
+
+        all_chunks = store.get_all()
+
+        self.assertEqual([c["id"] for c in all_chunks], ["a_0", "b_0"])
+
+    def test_get_all_with_product_filter_returns_only_that_product(self):
+        store = VectorStore()
+        chunks = [
+            _make_chunk("a_0", "ProductA"),
+            _make_chunk("b_0", "ProductB"),
+            _make_chunk("a_1", "ProductA"),
+        ]
+        store.add(chunks, [[1.0, 0.0], [0.0, 1.0], [1.0, 1.0]])
+
+        product_a_chunks = store.get_all(product="ProductA")
+
+        self.assertEqual([c["id"] for c in product_a_chunks], ["a_0", "a_1"])
+
+    def test_get_all_on_empty_store_returns_empty_list(self):
+        store = VectorStore()
+        self.assertEqual(store.get_all(), [])
+        self.assertEqual(store.get_all(product="ProductA"), [])
+
 
 if __name__ == "__main__":
     unittest.main()

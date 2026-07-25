@@ -126,5 +126,13 @@ class VectorStore:
             results.append(result)
         return results
 
+    def get_all(self, product: str | None = None) -> list[dict]:
+        """Return stored chunk dicts (no vectors), optionally filtered to one product."""
+        if product is None:
+            chunks = self.chunks
+        else:
+            chunks = [chunk for chunk in self.chunks if chunk["product"] == product]
+        return [dict(chunk) for chunk in chunks]
+
     def __len__(self) -> int:
         return len(self.chunks)
