@@ -1,0 +1,27 @@
+Getting Started
+
+Nimbus is a workflow automation platform that lets teams connect apps and automate repetitive tasks without writing code. To get started, create a free account and connect your first app from the integrations marketplace.
+
+Installation
+
+Nimbus is available as a cloud-hosted service, so there is nothing to install locally. For teams that require an on-premise deployment, a self-hosted Docker image is available. Run the setup wizard after your first login to configure your workspace name, timezone, and default notification settings.
+
+Building Your First Workflow
+
+Workflows in Nimbus are built visually using a drag-and-drop canvas. Each workflow starts with a trigger, such as a new form submission or an incoming webhook, followed by one or more action steps. You can add conditional branches to route data differently depending on field values, and you can add delay steps to pause a workflow for a set amount of time before continuing.
+
+Authentication and API Access
+
+Nimbus supports API key authentication for programmatic access. Generate a key from Settings > API Keys. Each key can be scoped to read-only or read-write access. Rate limits are 100 requests per minute on the free tier and 1000 requests per minute on paid plans.
+
+Integrations
+
+Nimbus connects to over 200 third-party applications, including popular tools for messaging, spreadsheets, customer support, and payment processing. Custom integrations can be built using the Nimbus SDK, which supports both Python and JavaScript.
+
+Error Handling and Retries
+
+If a workflow step fails, Nimbus will automatically retry the step up to three times with exponential backoff before marking the run as failed. Failed runs can be inspected in the Run History tab, where you can view the exact input and output of each step for debugging.
+
+Refunds and Billing
+
+Paid subscriptions are billed monthly or annually. Refunds are issued on a case-by-case basis within 14 days of purchase. To request a refund, contact support through the in-app chat widget.

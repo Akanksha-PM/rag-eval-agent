@@ -28,5 +28,15 @@
         "value": "/tmp/fixtures/b.txt"
       }
     ]
+  },
+  "NimbusTest": {
+    "status": "ready",
+    "chunk_count": 1,
+    "sources": [
+      {
+        "type": "file",
+        "value": "/Users/B0268750/rag-eval-agent/data/docs/nimbustest/sample_product_docs.txt"
+      }
+    ]
   }
 }
