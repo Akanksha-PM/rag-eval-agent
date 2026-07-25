@@ -1,1 +1,12 @@
-{}
+{
+  "TestProduct": {
+    "status": "pending",
+    "chunk_count": 0,
+    "sources": [
+      {
+        "type": "url",
+        "value": "https://example.com"
+      }
+    ]
+  }
+}
