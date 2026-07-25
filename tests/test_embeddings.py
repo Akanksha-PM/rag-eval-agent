@@ -21,7 +21,27 @@ def _cosine_similarity(a, b) -> float:
     return float(np.dot(a, b) / denom)
 
 
-class TFIDFEmbedderTestCase(unittest.TestCase):
+class _IsolatedDataDirTestCase(unittest.TestCase):
+    """Patches Config.DATA_DIR to a temp dir for every test.
+
+    TFIDFEmbedder.fit() always persists to Config.DATA_DIR now (the vocab
+    is global, so there's no "no product given, skip persisting" case
+    anymore) -- every test that fits an embedder needs this isolation, not
+    just the ones that assert on persistence directly, or they'd write
+    into this repo's real data/ directory.
+    """
+
+    def setUp(self):
+        self._tmpdir = tempfile.TemporaryDirectory()
+        self._patcher = patch.object(Config, "DATA_DIR", Path(self._tmpdir.name))
+        self._patcher.start()
+
+    def tearDown(self):
+        self._patcher.stop()
+        self._tmpdir.cleanup()
+
+
+class TFIDFEmbedderTestCase(_IsolatedDataDirTestCase):
     def test_fit_then_embed_returns_consistent_length_vectors(self):
         embedder = embeddings.TFIDFEmbedder()
         embedder.fit(["apple banana cherry", "banana date", "cherry date apple"])
@@ -54,23 +74,43 @@ class TFIDFEmbedderTestCase(unittest.TestCase):
 
         self.assertGreater(same_topic_similarity, different_topic_similarity)
 
-    def test_fit_persists_and_reloads_state_for_product(self):
-        tmp_dir = tempfile.TemporaryDirectory()
-        self.addCleanup(tmp_dir.cleanup)
+    def test_fit_persists_and_reloads_global_state(self):
+        embedder = embeddings.TFIDFEmbedder()
+        embedder.fit(["apple banana", "banana cherry"])
 
-        with patch.object(Config, "DATA_DIR", Path(tmp_dir.name)):
-            embedder = embeddings.TFIDFEmbedder(product="Test Product")
-            embedder.fit(["apple banana", "banana cherry"])
+        state_path = Config.DATA_DIR / "tfidf_vocab.json"
+        self.assertTrue(state_path.exists())
 
-            state_path = Path(tmp_dir.name) / "embeddings" / "test_product_tfidf.json"
-            self.assertTrue(state_path.exists())
+        # A fresh instance should load the persisted vocab automatically on
+        # __init__, with no explicit fit() call.
+        reloaded = embeddings.TFIDFEmbedder()
+        self.assertEqual(reloaded.vocabulary, embedder.vocabulary)
+        self.assertEqual(reloaded.idf, embedder.idf)
 
-            reloaded = embeddings.TFIDFEmbedder(product="Test Product")
-            self.assertEqual(reloaded.vocabulary, embedder.vocabulary)
-            self.assertEqual(reloaded.idf, embedder.idf)
+    def test_shared_vocab_makes_vectors_comparable_across_products(self):
+        product_a_chunks = [
+            "Install the package by running pip install our-sdk.",
+            "Configure your API key in the our-sdk settings file.",
+        ]
+        product_b_chunks = [
+            "Submit a refund request through the online returns portal.",
+            "Refunds are processed within five business days of approval.",
+        ]
+
+        embedder = embeddings.TFIDFEmbedder()
+        embedder.fit(product_a_chunks + product_b_chunks)
+
+        query_vector = embedder.embed(["How do I install the package with pip?"])[0]
+        product_a_vectors = embedder.embed(product_a_chunks)
+        product_b_vectors = embedder.embed(product_b_chunks)
+
+        best_a_score = max(_cosine_similarity(query_vector, v) for v in product_a_vectors)
+        best_b_score = max(_cosine_similarity(query_vector, v) for v in product_b_vectors)
+
+        self.assertGreater(best_a_score, best_b_score)
 
 
-class GetEmbedderTestCase(unittest.TestCase):
+class GetEmbedderTestCase(_IsolatedDataDirTestCase):
     def test_returns_tfidf_by_default(self):
         with patch.object(Config, "EMBEDDING_PROVIDER", "tfidf"):
             embedder = embeddings.get_embedder()
